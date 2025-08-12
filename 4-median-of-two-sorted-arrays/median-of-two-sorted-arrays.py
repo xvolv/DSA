@@ -1,37 +1,33 @@
 class Solution(object):
     def findMedianSortedArrays(self, nums1, nums2):
-        """
-        :type nums1: List[int]
-        :type nums2: List[int]
-        :rtype: float
-        """
-        # Make sure nums1 is the smaller array
+        # Ensure nums1 is the smaller array for binary search efficiency
         if len(nums1) > len(nums2):
             nums1, nums2 = nums2, nums1
-        
+
         m, n = len(nums1), len(nums2)
-        total = m + n
-        half = (total + 1) // 2
-        
+        total_len = m + n
+        half_len = (total_len + 1) // 2  # +1 ensures correct handling for odd lengths
+
         left, right = 0, m
-        
         while left <= right:
-            i = (left + right) // 2  # Partition index in nums1
-            j = half - i             # Partition index in nums2
-            
-            nums1_left = float('-inf') if i == 0 else nums1[i-1]
-            nums1_right = float('inf') if i == m else nums1[i]
-            
-            nums2_left = float('-inf') if j == 0 else nums2[j-1]
-            nums2_right = float('inf') if j == n else nums2[j]
-            
-            if nums1_left <= nums2_right and nums2_left <= nums1_right:
-                # Correct partition found
-                if total % 2 == 1:
-                    return max(nums1_left, nums2_left) * 1.0
+            i = (left + right) // 2  # Partition in nums1
+            j = half_len - i         # Partition in nums2
+
+            # Get the elements just before and after the partition
+            max_left1 = float('-inf') if i == 0 else nums1[i-1]
+            min_right1 = float('inf') if i == m else nums1[i]
+
+            max_left2 = float('-inf') if j == 0 else nums2[j-1]
+            min_right2 = float('inf') if j == n else nums2[j]
+
+            # Check if we have a valid partition
+            if max_left1 <= min_right2 and max_left2 <= min_right1:
+                # Found the correct partition
+                if total_len % 2 == 0:
+                    return (max(max_left1, max_left2) + min(min_right1, min_right2)) / 2.0
                 else:
-                    return (max(nums1_left, nums2_left) + min(nums1_right, nums2_right)) / 2.0
-            elif nums1_left > nums2_right:
-                right = i - 1
+                    return float(max(max_left1, max_left2))
+            elif max_left1 > min_right2:
+                right = i - 1  # Too far right in nums1, move left
             else:
-                left = i + 1
+                left = i + 1   # Too far left in nums1, move right
